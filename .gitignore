@@ -56,6 +56,11 @@ compile_commands.json
 Thumbs.db
 
 # 本地结果/日志
+.cache/
+clangd/
+index/
+result/
+testdata/
 out/
 output/
 *.log

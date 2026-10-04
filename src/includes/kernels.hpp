@@ -1,5 +1,5 @@
-#ifndef kernels_HPP
-#define kernels_HPP
+#ifndef KERNELS_HPP
+#define KERNELS_HPP
 
 #include <vector>
 
@@ -7,7 +7,7 @@
 using Matrix = std::vector<std::vector<int>>;
 
 extern int n;
-extern Matrix blur_Matrix;
+extern Matrix blur_kernel;
 extern Matrix sobx;
 extern Matrix soby;
 

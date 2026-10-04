@@ -1,5 +1,5 @@
-#ifndef convolution_HPP
-#define convolution_HPP
+#ifndef CONVOLUTION_HPP
+#define CONVOLUTION_HPP
 
 # include <vector>
 # include "kernels.hpp"

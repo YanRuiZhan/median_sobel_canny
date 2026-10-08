@@ -29,11 +29,7 @@ const int gauss_kernel_sum = 16;
 
 // Sobel 锐化：原图 + amount * 梯度幅值
 // amount >= 0，0 表示不增强；越大会使边缘越亮，也越容易饱和
-const double sobel_amount = 0.2;
-
-// Canny 双阈值：0 < low <= high；越低越容易保留弱边缘
-const double canny_low_threshold = 50.0;
-const double canny_high_threshold = 150.0;
+const double sobel_amount = 0.3;
 
 // 中值滤波默认窗口大小，必须为正奇数；可由命令行覆盖
 const int median_default_window = 3;

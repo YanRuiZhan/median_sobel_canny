@@ -41,7 +41,7 @@ Matrix to_gray(const Image& raw) {
     return gray;
 }
 
-Image canny_edge(const Image& raw) {
+Image canny_edge(const Image& raw,const int low_threshold,const int high_threshold) {
     const int h = raw.h;
     const int w = raw.w;
 
@@ -113,11 +113,11 @@ Image canny_edge(const Image& raw) {
     for (int y = 1; y < h - 1; ++y) {
         for (int x = 1; x < w - 1; ++x) {
             double m = nms[y][x];
-            if (m >= canny_high_threshold) {
+            if (m >= high_threshold) {
                 // 大于high_threshold赋值为1
                 flag[y][x] = 1;
                 q.push({y, x});
-            } else if (m >= canny_low_threshold) {
+            } else if (m >= low_threshold) {
                 flag[y][x] = 2;
             }
         }

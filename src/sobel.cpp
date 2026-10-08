@@ -16,8 +16,9 @@
 #include <vector>
 
 // 对单通道图像做 Sobel 锐化，返回同尺寸单通道结果
-Matrix sobel_sharpen_channel(const Matrix& ch) {
+Matrix sobel_sharpen_channel(const Matrix& ch,const double k) {
     // 将std::size_t（无符号整形）转为 int
+    auto sobel_amount = k;
     const int h = static_cast<int>(ch.size());
     const int w = static_cast<int>(ch[0].size());
 
@@ -44,11 +45,14 @@ Matrix sobel_sharpen_channel(const Matrix& ch) {
             const double magnitude = std::sqrt(dx * dx + dy * dy);
             sharp[y][x] = clamp255(static_cast<int>(
                 ch[y][x] + sobel_amount * magnitude));
+            /*梯度幅值图：
+             sharp[y][x] = clamp255(static_cast<int>(
+                 magnitude));*/
         }
     return sharp;
 }
 
-Image sobel_sharpen(const Image& raw) {
+Image sobel_sharpen(const Image& raw,const double k) {
     Image out;
     out.w = raw.w;
     out.h = raw.h;
@@ -64,7 +68,7 @@ Image sobel_sharpen(const Image& raw) {
         for (int y = 0; y < raw.h; ++y)
             for (int x = 0; x < raw.w; ++x)
                 channel[y][x] = raw.data[y][x * raw.ch + c];
-        Matrix sharp = sobel_sharpen_channel(channel);
+        Matrix sharp = sobel_sharpen_channel(channel, k);
 
         // 合回第 c 通道
         for (int y = 0; y < raw.h; ++y)

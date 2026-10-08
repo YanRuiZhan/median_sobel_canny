@@ -45,6 +45,8 @@ int main(int argc, char** argv) {
         // 窗口大小：默认值在 kernels.cpp 中设置，命令行可覆盖
         int win = median_default_window;
         if (argc >= 5) {
+            // std::atoi（字符串转int）
+            // std::stod (字符串转double)
             win = std::atoi(argv[4]);
             if (win <= 0 || win % 2 == 0) {
                 std::cerr << "窗口大小必须是正奇数\n";
@@ -67,8 +69,12 @@ int main(int argc, char** argv) {
 
     //2.如果传入sobel算子参数
     else if (method == "sobel") {
+        double k = 0.3;
+        if (argc >= 5) {
+            k = std::stod(argv[4]);}
+            std::cout << "增强系数已设为" << k <<std::endl;
         auto t0 = tick();
-        Image out = sobel_sharpen(img);
+        Image out = sobel_sharpen(img,k);
         std::cout << "sobel图像锐化完成  用时 " << tock_ms(t0) << " ms\n";
 
         if (!save_image(argv[2], out)) {
@@ -81,8 +87,19 @@ int main(int argc, char** argv) {
 
     //3.如果传入canny算子参数
     else if (method == "canny") {
+        //默认参数
+        int low_threshold = 20;
+        int high_threshold = 110;
+
+        if (argc >= 5) {
+            low_threshold = std::atoi(argv[4]);
+            high_threshold = std::atoi(argv[5]);
+            std::cout << "已设置low_threshold为:" << low_threshold << std::endl;
+            std::cout << "已设置high_threshold为:" << high_threshold << std::endl;
+        }
+
         auto t0 = tick();
-        Image out = canny_edge(img);
+        Image out = canny_edge(img,low_threshold,high_threshold);
         std::cout << "canny算子提取图像边缘完成  用时 " << tock_ms(t0) << " ms\n";
 
         if (!save_image(argv[2], out)) {

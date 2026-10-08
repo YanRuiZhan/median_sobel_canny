@@ -12,9 +12,8 @@ Image read_image(const std::string& path) {
     Image img;
 
     // 第 5 个参数传 0 = 保留原图通道数
-    // 灰度图读取后 ch == 1，彩色图 ch == 3，两种图都能正确读入
     // buf：[ R0 G0 B0 R1 G1 B1 R2 G2 B2 ... ]
-    unsigned char* buf = stbi_load(path.c_str(), &img.w, &img.h, &img.ch, 0);
+    auto* buf = stbi_load(path.c_str(), &img.w, &img.h, &img.ch, 0);
 
     //空图片主动抛出异常
     if (!buf) {

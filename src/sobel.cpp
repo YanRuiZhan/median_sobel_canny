@@ -1,6 +1,6 @@
-//Sobel算子锐化图像（基于项目自有的 Image / Matrix，不依赖 OpenCV）
-//
-//步骤：
+//Sobel算子锐化图像
+
+//STEP：
 //1. 对每个通道分别处理（灰度图只有 1 个通道）
 //2. 对通道做高斯滤波（平滑降噪，减少噪声对边缘检测的干扰）
 //3. 分别用水平方向和垂直方向的Sobel卷积核与图像做卷积，得到水平梯度Gx和垂直梯度Gy
@@ -43,7 +43,7 @@ Matrix sobel_sharpen_channel(const Matrix& ch) {
     Matrix gx = conv(blurred, sobx);
     Matrix gy = conv(blurred, soby);
 
-    // 3/4. 梯度幅值 G = sqrt(Gx^2 + Gy^2)，并截断到 [0,255]
+    // 3/4. 梯度幅值 G = sqrt(Gx^2 + Gy^2)，并截断到 [0,255]（仅用于展示/调试的高频图）
     Matrix edges(h, std::vector<int>(w, 0));
     for (int y = 0; y < h; ++y)
         for (int x = 0; x < w; ++x)
@@ -51,11 +51,16 @@ Matrix sobel_sharpen_channel(const Matrix& ch) {
                 std::sqrt(static_cast<double>(gx[y][x]) * gx[y][x] +
                           static_cast<double>(gy[y][x]) * gy[y][x])));
 
-    // 5. 边缘强度图与该通道原图叠加，得到锐化结果
+    // 5. 非锐化掩蔽(unsharp masking)：原图 + k * 高频细节
+    //    高频 = 原图 - 高斯模糊图（可正可负，亮区不会被整体抬高）
+    //    k 为锐化强度，1.0 为标准强度，过大会放大噪声
+    const double k = 1.0;
     Matrix sharp(h, std::vector<int>(w, 0));
     for (int y = 0; y < h; ++y)
-        for (int x = 0; x < w; ++x)
-            sharp[y][x] = clamp255(ch[y][x] + edges[y][x]);
+        for (int x = 0; x < w; ++x) {
+            int detail = ch[y][x] - blurred[y][x];   // 保留符号
+            sharp[y][x] = clamp255(static_cast<int>(ch[y][x] + k * detail));
+        }
 
     return sharp;
 }

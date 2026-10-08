@@ -30,17 +30,26 @@ Matrix conv(Matrix& image,Matrix& filter){
 }
 
 Matrix padding(Matrix& image,int kernel_size){
-/* 填充原图片 这里采用0填充*/
+/* 填充原图片 这里采用复制边界填充(replicate)，即把最外圈像素向外复制到pad圈 */
     //新图片尺寸和原来保持一致，由此计算pad
     int pad = (kernel_size-1)/2;
-    int m = image.size()+2*pad;
-    int n = image[0].size()+2*pad;
+    int h = image.size();
+    int w = image[0].size();
+    int m = h+2*pad;
+    int n = w+2*pad;
 
     Matrix padding_img(m, std::vector<int>(n, 0));
 
-    for(std::size_t i=0;i<image.size();i++){
-        for(std::size_t j=0;j<image[0].size();j++){
-            padding_img[i+pad][j+pad] = image[i][j];
+    for(int i=0;i<m;i++){
+        for(int j=0;j<n;j++){
+            // 把超出原图范围的坐标赋值为最近的边界像素
+            int si = i-pad;
+            int sj = j-pad;
+            if(si<0) si=0;
+            if(si>h-1) si=h-1;
+            if(sj<0) sj=0;
+            if(sj>w-1) sj=w-1;
+            padding_img[i][j] = image[si][sj];
         }
     }
     return padding_img;

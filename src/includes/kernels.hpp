@@ -14,7 +14,7 @@ extern Matrix gauss_kernel;   // 3x3 高斯平滑核，元素和为 gauss_kernel
 extern const int gauss_kernel_sum;
 
 // 算法可调参数，统一在 kernels.cpp 中设置
-extern const double sobel_amount;
+
 extern const double canny_low_threshold;
 extern const double canny_high_threshold;
 extern const int median_default_window;

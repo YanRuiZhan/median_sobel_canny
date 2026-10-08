@@ -23,16 +23,16 @@ int main(int argc, char** argv) {
          argv[3]:图像处理方法(median/sobel/canny)
          argv[4]:处理方法参数
          */
-        std::cerr << "用法: " << argv[0] << " <输入图> <输出图> <处理方式> [窗口大小n]\n";
-        std::cerr << "  处理方式: median   - 中值滤波\n";
-        std::cerr << "            sobel   - sobel图像锐化\n";
-        std::cerr << "            canny   - canny算子提取图像边缘\n";
+        std::cerr << "用法: " << argv[0] << " <输入图> <输出图> <处理方式> [参数]\n";
+        std::cerr << "  处理方式: median   - 中值滤波 [窗口大小n]\n";
+        std::cerr << "            sobel   - Sobel 边缘检测，无需参数\n";
+        std::cerr << "            canny   - canny算子提取图像边缘 [低阈值 高阈值]\n";
         return 1;
     }
 
     Image img = read_image(argv[1]);
     if (img.data.empty()) {
-        std::cerr << "读取失败\n";
+        std::cerr << "读取失败，请检查图片路径或后缀\n";
         return 1;
     }
     std::cout << "读入: " << img.w << "x" << img.h
@@ -67,15 +67,11 @@ int main(int argc, char** argv) {
         return 0;
     }
 
-    //2.如果传入sobel算子参数
+    //2.Sobel 边缘检测
     else if (method == "sobel") {
-        double k = 0.3;
-        if (argc >= 5) {
-            k = std::stod(argv[4]);}
-            std::cout << "增强系数已设为" << k <<std::endl;
         auto t0 = tick();
-        Image out = sobel_sharpen(img,k);
-        std::cout << "sobel图像锐化完成  用时 " << tock_ms(t0) << " ms\n";
+        Image out = sobel_sharpen(img);
+        std::cout << "Sobel 边缘检测完成  用时 " << tock_ms(t0) << " ms\n";
 
         if (!save_image(argv[2], out)) {
             std::cerr << "保存失败\n";

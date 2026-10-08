@@ -3,9 +3,8 @@
 
 #include "image_io.hpp"
 
-// Sobel 算子锐化图像
-// 步骤：灰度化 -> 高斯平滑 -> Sobel 求 Gx/Gy -> 梯度幅值 -> 与原灰度叠加
-// 灰度(ch==1)与彩色(ch==3)统一走逐通道流程
-Image sobel_sharpen(const Image& src,const double k);
+// Sobel 边缘检测：先灰度化，再高斯平滑、求双方向梯度幅值
+// 输出单通道灰度图，不叠加原图，忽略 alpha
+Image sobel_sharpen(const Image& src);
 
 #endif

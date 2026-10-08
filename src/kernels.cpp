@@ -19,10 +19,26 @@
 
 #include "includes/kernels.hpp"
 
-//初始化n*n的平滑滤波卷积核
-int n = 3;
-Matrix blur_kernel(n, std::vector<int>(n, 0));
-
 //初始化sobel算子x、y方向卷积核,sobel算子固定为3*3模板
 Matrix sobx = {{-1,-2,-1},{ 0, 0, 0},{ 1, 2, 1}};
 Matrix soby = {{-1, 0, 1},{-2, 0, 2},{-1, 0, 1}};
+
+// 3x3 高斯平滑核（和为 16），降低噪声引起的伪边缘，sobel 算子与 canny 算子共用
+Matrix gauss_kernel = {{1, 2, 1}, {2, 4, 2}, {1, 2, 1}};
+const int gauss_kernel_sum = 16;
+
+// Sobel 锐化：原图 + amount * 梯度幅值
+// amount >= 0，0 表示不增强；越大会使边缘越亮，也越容易饱和
+const double sobel_amount = 0.2;
+
+// Canny 双阈值：0 < low <= high；越低越容易保留弱边缘
+const double canny_low_threshold = 50.0;
+const double canny_high_threshold = 150.0;
+
+// 中值滤波默认窗口大小，必须为正奇数；可由命令行覆盖
+const int median_default_window = 3;
+
+// 把数值钳位到 [0, 255]
+int clamp255(int v) {
+    return v < 0 ? 0 : (v > 255 ? 255 : v);
+}

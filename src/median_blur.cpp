@@ -38,8 +38,7 @@ Matrix sliding_hist_sort(const Matrix& raw, int len_win) {
     const int h = static_cast<int>(raw.size());
     const int w = static_cast<int>(raw[0].size());
     const int pad = len_win / 2;
-    const int area = len_win * len_win;
-    const int median_rank = area / 2;   // 排序后中位数所在下标
+    const int median_rank = len_win * len_win / 2;   // 排序后中位数所在下标
 
     Matrix img(h, std::vector<int>(w, 0));
 
@@ -76,9 +75,11 @@ Matrix sliding_hist_sort(const Matrix& raw, int len_win) {
         for (int j = 1; j < w; ++j) {
             int out_col = j - pad - 1;   // 离开窗口的列
             int in_col = j + pad;        // 进入窗口的列
-            // 将列坐标钳位到有效范围，确保索引不越界
-            int clamped_out_col = out_col < 0 ? 0 : (out_col > w - 1 ? w - 1 : out_col);
-            int clamped_in_col = in_col < 0 ? 0 : (in_col > w - 1 ? w - 1 : in_col);
+            // 将列索引钳位到有效范围，防止越界
+            int clamped_out_col =
+                out_col < 0 ? 0 : (out_col > w - 1 ? w - 1 : out_col);
+            int clamped_in_col =
+                in_col < 0 ? 0 : (in_col > w - 1 ? w - 1 : in_col);
 
             //逐行减去和添加元素
             for (int y = i - pad; y <= i + pad; ++y) {
@@ -122,15 +123,12 @@ Image median_blur(const Image& raw, int len_win) {
             for (int y = 0; y < raw.h; ++y)
                 for (int x = 0; x < raw.w; ++x)
                     img.data[y][x * raw.ch + c] = raw.data[y][x * raw.ch + c];
-            continue;
-        }
-
+            }
 
         // 拆出第 c 通道
         for (int y = 0; y < raw.h; ++y)
             for (int x = 0; x < raw.w; ++x)
                 channel[y][x] = raw.data[y][x * raw.ch + c];
-
         Matrix filtered = median_blur_channel(channel, len_win);
 
         // 合回第 c 通道

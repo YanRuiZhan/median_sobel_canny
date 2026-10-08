@@ -2,6 +2,7 @@
 #include "includes/median_blur.hpp"
 #include "includes/sobel.hpp"
 #include "includes/canny.hpp"
+#include "includes/kernels.hpp"
 #include <iostream>
 #include <string>
 #include <chrono>
@@ -41,8 +42,8 @@ int main(int argc, char** argv) {
 
     //1.如果传入中值滤波参数
     if (method == "median") {
-        // 窗口大小：命令行第 4 个参数，默认 3
-        int win = 3;
+        // 窗口大小：默认值在 kernels.cpp 中设置，命令行可覆盖
+        int win = median_default_window;
         if (argc >= 5) {
             win = std::atoi(argv[4]);
             if (win <= 0 || win % 2 == 0) {

@@ -23,7 +23,7 @@ message(STATUS "OpenCV 版本: ${OpenCV_VERSION}")
 message(STATUS "OpenCV 头文件: ${OpenCV_INCLUDE_DIRS}")
 
 # 添加可执行文件
-add_executable(test_conv
+add_executable(final
     src/main.cpp
     src/convolution.cpp
     src/kernels.cpp
@@ -34,20 +34,20 @@ add_executable(test_conv
 )
 
 # target 专属设置
-target_include_directories(test_conv PRIVATE
+target_include_directories(final PRIVATE
     ${PROJECT_SOURCE_DIR}/src
     ${PROJECT_SOURCE_DIR}/src/includes
     ${OpenCV_INCLUDE_DIRS}
 )
 
-target_link_libraries(test_conv PRIVATE ${OpenCV_LIBS})
+target_link_libraries(final PRIVATE ${OpenCV_LIBS})
 
 
-target_compile_options(test_conv PRIVATE
+target_compile_options(final PRIVATE
     -Wall
     -Wextra
 )
 
-set_target_properties(test_conv PROPERTIES
+set_target_properties(final PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin
 )

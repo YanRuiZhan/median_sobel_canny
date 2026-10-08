@@ -49,7 +49,7 @@ bool save_image(const std::string& path, const Image& img) {
         for (int x = 0; x < w; ++x) {
             for (int c = 0; c < ch; ++c) {
                 int v = img.data[y][x * ch + c];
-                v = v < 0 ? 0 : (v > 255 ? 255 : v);   // clamp(钳位)
+                v = clamp255(v);   // clamp(钳位)
                 // 展平为buf(stbi可读的一维缓冲数组)
                 buf[(y * w + x) * ch + c] = static_cast<unsigned char>(v);
             }

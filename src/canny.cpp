@@ -1,6 +1,13 @@
 //canny算子边缘检测提取
 
 //STEP：
+//0. 彩色图灰度化
+    /*BT.601 是国际电信联盟(ITU-R)制定的标清电视(SDTV)色度编码标准，
+      其中定义了将 RGB 转换为亮度（灰度） Y 的加权系数：
+      Y = 0.299*R + 0.587*G + 0.114*B
+      系数按人眼对绿色最敏感、红色次之、蓝色最不敏感的特性加权，
+      因此绿色权重最大(0.587)，蓝色权重最小(0.114)，
+      且三者之和为 1，保证灰度值范围与原始亮度一致。*/
 //1. 高斯平滑滤波
 //2. 计算两个方向上梯度大小（复用 sobelx、sobely 算子），同时求梯度方向
 //3. 梯度方向上非极大值抑制（NMS）
@@ -15,48 +22,37 @@
 #include <vector>
 #include <queue>
 
-namespace {
-
-// 高斯平滑系数，与 sobel.cpp 保持一致
-constexpr double kGaussSum = 16.0;
-
 // 逐通道转灰度系数（BT.601）
-Matrix to_gray(const Image& src) {
-    Matrix gray(src.h, std::vector<int>(src.w, 0));
-    for (int y = 0; y < src.h; ++y) {
-        for (int x = 0; x < src.w; ++x) {
-            if (src.ch == 1) {
-                gray[y][x] = src.data[y][x];
+Matrix to_gray(const Image& raw) {
+    Matrix gray(raw.h, std::vector<int>(raw.w, 0));
+    for (int y = 0; y < raw.h; ++y) {
+        for (int x = 0; x < raw.w; ++x) {
+            // 只有单通道时直接赋值
+            if (raw.ch == 1) {
+                gray[y][x] = raw.data[y][x];
             } else {
-                int b = src.data[y][x * src.ch + 0];
-                int g = src.data[y][x * src.ch + 1];
-                int r = src.data[y][x * src.ch + 2];
-                gray[y][x] = static_cast<int>(0.114 * b + 0.587 * g + 0.299 * r);
+                int r = raw.data[y][x * raw.ch + 2];
+                int g = raw.data[y][x * raw.ch + 1];
+                int b = raw.data[y][x * raw.ch + 0];
+                gray[y][x] = static_cast<int>(0.299 * r+0.587 * g+0.114 * b );
             }
         }
     }
     return gray;
 }
 
-Matrix gauss_kernel() {
-    return {{1, 2, 1}, {2, 4, 2}, {1, 2, 1}};
-}
-
-}  // namespace
-
-Image canny_edge(const Image& src) {
-    const int h = src.h;
-    const int w = src.w;
+Image canny_edge(const Image& raw) {
+    const int h = raw.h;
+    const int w = raw.w;
 
     // 1. 灰度化 + 高斯平滑
-    Matrix gray = to_gray(src);
+    Matrix gray = to_gray(raw);
 
-    Matrix gk = gauss_kernel();
-    Matrix blurred_raw = conv(gray, gk);
+    Matrix blurred_raw = conv(gray, gauss_kernel);
     Matrix blurred(h, std::vector<int>(w, 0));
     for (int y = 0; y < h; ++y)
         for (int x = 0; x < w; ++x)
-            blurred[y][x] = blurred_raw[y][x] / static_cast<int>(kGaussSum);
+            blurred[y][x] = blurred_raw[y][x] / gauss_kernel_sum;
 
     // 2. 两个方向梯度 + 梯度方向（弧度）
     Matrix gx = conv(blurred, sobx);
@@ -64,46 +60,52 @@ Image canny_edge(const Image& src) {
 
     std::vector<std::vector<double>> mag(h, std::vector<double>(w, 0.0));
     std::vector<std::vector<double>> dir(h, std::vector<double>(w, 0.0));
+
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             double dx = gx[y][x];
             double dy = gy[y][x];
             mag[y][x] = std::sqrt(dx * dx + dy * dy);
             // 方向归一到 [0, 180) 度
-            double ang = std::atan2(dy, dx) * 180.0 / M_PI;
-            if (ang < 0) ang += 180.0;
-            dir[y][x] = ang;
+            double angle = std::atan2(dy, dx) * 180.0 / M_PI;
+            if (angle < 0) angle += 180.0;
+            dir[y][x] = angle;
         }
     }
 
     // 3. 梯度方向非极大值抑制
     std::vector<std::vector<double>> nms(h, std::vector<double>(w, 0.0));
+    // y、x防止数组越界，nms最外圈直接为0
     for (int y = 1; y < h - 1; ++y) {
         for (int x = 1; x < w - 1; ++x) {
-            double a = dir[y][x];
+            double angle = dir[y][x];
             double m = mag[y][x];
             double m1, m2;
-            if ((a >= 0 && a < 22.5) || (a >= 157.5 && a <= 180)) {
+            // 水平方向梯度
+            if ((angle >= 0 && angle < 22.5) ||
+                (angle >= 157.5 && angle <= 180)) {
                 m1 = mag[y][x - 1];
                 m2 = mag[y][x + 1];
-            } else if (a < 67.5) {
+            // 副对角线方向梯度
+            } else if (angle < 67.5) {
                 m1 = mag[y - 1][x + 1];
                 m2 = mag[y + 1][x - 1];
-            } else if (a < 112.5) {
+            // 竖直方向梯度
+            } else if (angle < 112.5) {
                 m1 = mag[y - 1][x];
                 m2 = mag[y + 1][x];
+            // 主对角线方向梯度
             } else {
                 m1 = mag[y - 1][x - 1];
                 m2 = mag[y + 1][x + 1];
             }
+            // 只有梯度方向上的幅值m1、m2同时大于等于该点梯度幅值m时该位置为m，否则置0
             if (m >= m1 && m >= m2)
                 nms[y][x] = m;
         }
     }
 
-    // 4. 双阈值二值化
-    const double weak = 50.0;
-    const double strong = 150.0;
+    // 4. 双阈值二值化，阈值统一在 kernels.cpp 中调整
 
     // 0=背景, 1=强边缘, 2=弱边缘候选
     std::vector<std::vector<unsigned char>> flag(h, std::vector<unsigned char>(w, 0));
@@ -111,16 +113,17 @@ Image canny_edge(const Image& src) {
     for (int y = 1; y < h - 1; ++y) {
         for (int x = 1; x < w - 1; ++x) {
             double m = nms[y][x];
-            if (m >= strong) {
+            if (m >= canny_high_threshold) {
+                // 大于high_threshold赋值为1
                 flag[y][x] = 1;
                 q.push({y, x});
-            } else if (m >= weak) {
+            } else if (m >= canny_low_threshold) {
                 flag[y][x] = 2;
             }
         }
     }
 
-    // 5. 弱边缘连接：从所有强边缘 BFS，把连通的弱边缘提升为强边缘
+    // 5. 弱边缘连接：从所有强边缘 BFS，把8邻域连通的弱边缘提升为强边缘
     const int dy8[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
     const int dx8[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
     while (!q.empty()) {
@@ -145,6 +148,7 @@ Image canny_edge(const Image& src) {
     out.data = Matrix(h, std::vector<int>(w, 0));
     for (int y = 0; y < h; ++y)
         for (int x = 0; x < w; ++x)
+            // 0、1映射为0、255
             out.data[y][x] = (flag[y][x] == 1) ? 255 : 0;
 
     return out;

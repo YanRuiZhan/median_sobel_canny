@@ -27,13 +27,13 @@ Matrix to_gray(const Image& raw) {
     Matrix gray(raw.h, std::vector<int>(raw.w, 0));
     for (int y = 0; y < raw.h; ++y) {
         for (int x = 0; x < raw.w; ++x) {
-            // 只有单通道时直接赋值
-            if (raw.ch == 1) {
+            // 只有单通道或灰度加透明度双通道时直接赋值
+            if (raw.ch == 1 || raw.ch == 2) {
                 gray[y][x] = raw.data[y][x];
             } else {
-                int r = raw.data[y][x * raw.ch + 2];
+                int r = raw.data[y][x * raw.ch + 0];
                 int g = raw.data[y][x * raw.ch + 1];
-                int b = raw.data[y][x * raw.ch + 0];
+                int b = raw.data[y][x * raw.ch + 2];
                 gray[y][x] = static_cast<int>(0.299 * r+0.587 * g+0.114 * b );
             }
         }
@@ -54,7 +54,7 @@ Image canny_edge(const Image& raw,const int low_threshold,const int high_thresho
         for (int x = 0; x < w; ++x)
             blurred[y][x] = blurred_raw[y][x] / gauss_kernel_sum;
 
-    // 2. 两个方向梯度 + 梯度方向（弧度）
+    // 2. 两个方向梯度 + 梯度方向角度
     Matrix gx = conv(blurred, sobx);
     Matrix gy = conv(blurred, soby);
 
@@ -86,26 +86,26 @@ Image canny_edge(const Image& raw,const int low_threshold,const int high_thresho
                 (angle >= 157.5 && angle <= 180)) {
                 m1 = mag[y][x - 1];
                 m2 = mag[y][x + 1];
-            // 副对角线方向梯度
+            // 主对角线方向梯度
             } else if (angle < 67.5) {
-                m1 = mag[y - 1][x + 1];
-                m2 = mag[y + 1][x - 1];
+                m1 = mag[y - 1][x - 1];
+                m2 = mag[y + 1][x + 1];
             // 竖直方向梯度
             } else if (angle < 112.5) {
                 m1 = mag[y - 1][x];
                 m2 = mag[y + 1][x];
-            // 主对角线方向梯度
+            // 副对角线方向梯度
             } else {
-                m1 = mag[y - 1][x - 1];
-                m2 = mag[y + 1][x + 1];
+                m1 = mag[y - 1][x + 1];
+                m2 = mag[y + 1][x - 1];
             }
-            // 只有梯度方向上的幅值m1、m2同时大于等于该点梯度幅值m时该位置为m，否则置0
+            // 只有梯度方向上的幅值m1、m2同时小于等于该点梯度幅值m时该位置为m，否则置0
             if (m >= m1 && m >= m2)
                 nms[y][x] = m;
         }
     }
 
-    // 4. 双阈值二值化，阈值统一在 kernels.cpp 中调整
+    // 4. 双阈值二值化
 
     // 0=背景, 1=强边缘, 2=弱边缘候选
     std::vector<std::vector<unsigned char>> flag(h, std::vector<unsigned char>(w, 0));

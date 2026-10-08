@@ -92,6 +92,10 @@ int main(int argc, char** argv) {
         int high_threshold = 110;
 
         if (argc >= 5) {
+            if (argc==5){
+                std::cerr << "请同时提供低阈值和高阈值\n";
+                return 1;
+            }
             low_threshold = std::atoi(argv[4]);
             high_threshold = std::atoi(argv[5]);
             std::cout << "已设置low_threshold为:" << low_threshold << std::endl;

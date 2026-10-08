@@ -20,8 +20,8 @@
 #include "includes/kernels.hpp"
 
 //初始化sobel算子x、y方向卷积核,sobel算子固定为3*3模板
-Matrix sobx = {{-1,-2,-1},{ 0, 0, 0},{ 1, 2, 1}};
-Matrix soby = {{-1, 0, 1},{-2, 0, 2},{-1, 0, 1}};
+Matrix sobx = {{-1, 0, 1},{-2, 0, 2},{-1, 0, 1}};
+Matrix soby = {{-1,-2,-1},{ 0, 0, 0},{ 1, 2, 1}};
 
 // 3x3 高斯平滑核（和为 16），降低噪声引起的伪边缘，sobel 算子与 canny 算子共用
 Matrix gauss_kernel = {{1, 2, 1}, {2, 4, 2}, {1, 2, 1}};

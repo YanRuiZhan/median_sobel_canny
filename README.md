@@ -71,7 +71,6 @@ assignment_ws/
 | 原图 | Sobel |
 | --- | --- |
 | ![Lenna 原图](docs/images/lenna_original.jpg) | ![Lenna Sobel](docs/images/lenna_sobel.png) |
-| ![house 原图](docs/images/house_original.jpg) | ![house Sobel](docs/images/house_sobel.png) |
 
 ### Canny 边缘检测：不同双阈值（Lenna）
 
@@ -81,11 +80,10 @@ assignment_ws/
 
 阈值提高后弱边缘被丢弃，残留的强边缘更少、更干净。
 
-### Canny 边缘检测：其他测试图（50 / 100）
+### Canny 边缘检测：rice（50 / 100）
 
 | 原图 | Canny |
 | --- | --- |
-| ![house 原图](docs/images/house_original.jpg) | ![house Canny](docs/images/house_canny_50_100.png) |
 | ![rice 原图](docs/images/rice_original.png) | ![rice Canny](docs/images/rice_canny_50_100.png) |
 
 ### 中值滤波：不同窗口（butterfly）

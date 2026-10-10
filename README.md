@@ -4,15 +4,30 @@
 
 图像读写借用了 [stb](https://github.com/nothings/stb) 单头文件库，**滤波、卷积、梯度、非极大值抑制、双阈值连接等算法全部自己实现**，不调用 OpenCV 的图像处理函数。
 
-## 功能
+## 快速开始
 
-| 处理方式 | 参数 | 实现要点 |
+```bash
+# 构建（需要 CMake ≥ 3.16 和 C++17 编译器）
+mkdir -p build && cd build && cmake .. && make -j
+```
+
+```bash
+# 调用：final <输入图> <输出图> <处理方式> [参数]
+./build/bin/final input.jpg out_sobel.png  sobel          # Sobel 边缘检测
+./build/bin/final input.jpg out_canny.png  canny 50 100   # Canny，低阈值 50、高阈值 100
+./build/bin/final input.png out_median.png median 5       # 中值滤波，5×5 窗口
+```
+
+| 处理方式 | 参数 | 默认值 |
 | --- | --- | --- |
-| `median` | 窗口边长 n（正奇数，默认 3） | 滑动直方图中值滤波，O(H·W·k) |
-| `sobel` | 无 | 灰度化 → 高斯平滑 → 双方向梯度幅值 |
-| `canny` | 低阈值 高阈值（默认 20 / 110） | 高斯平滑 → Sobel 梯度 → NMS → 双阈值 → 弱边缘 BFS 连接 |
+| `median` | 窗口边长 n（必须正奇数） | 3 |
+| `sobel` | 无 | — |
+| `canny` | 低阈值、高阈值（必须同时给出） | 20 / 110 |
 
-算法可调参数（高斯核、Sobel 核、默认阈值、默认窗口）集中放在 `src/kernels.cpp`。
+程序会打印读入图像的尺寸、通道数和处理耗时；参数不合法（偶数窗口、Canny 只给一个阈值）会报错退出。
+
+> CMakeLists 里保留了 `find_package(OpenCV 4 REQUIRED)`，配置阶段需要能找到 OpenCV 4；
+> 当前实现没有直接调用 OpenCV 的函数，不需要的话可以把那几行连同 `target_link_libraries` 一起删掉。
 
 ## 目录结构
 
@@ -28,42 +43,8 @@ assignment_ws/
 │   ├── sobel.cpp             # Sobel 边缘检测
 │   ├── canny.cpp             # Canny 边缘检测
 │   └── includes/             # 各模块头文件 + stb_image.h / stb_image_write.h
-└── docs/images/              # README 用的结果示例图
+└── docs/images/              # README 用的原图与结果对比图
 ```
-
-## 构建
-
-需要 CMake ≥ 3.16 和 C++17 编译器。
-
-```bash
-mkdir -p build && cd build
-cmake ..
-make -j
-```
-
-生成的可执行文件为 `build/bin/final`。
-
-> CMakeLists 里保留了 `find_package(OpenCV 4 REQUIRED)`，因此配置阶段需要能找到 OpenCV 4；
-> 当前实现没有直接调用 OpenCV 的函数，不需要的话可以把那几行连同 `target_link_libraries` 一起删掉。
-
-## 运行
-
-```bash
-./build/bin/final <输入图> <输出图> <处理方式> [参数]
-```
-
-```bash
-# 中值滤波，窗口 5x5
-./build/bin/final input.png out_median.png median 5
-
-# Sobel 边缘检测
-./build/bin/final input.jpg out_sobel.png sobel
-
-# Canny 边缘检测，低阈值 50、高阈值 100
-./build/bin/final input.jpg out_canny.png canny 50 100
-```
-
-程序会打印读入图像的尺寸、通道数以及处理耗时。中值滤波的窗口必须是正奇数，Canny 的低/高阈值必须同时给出。
 
 ## 算法实现
 
@@ -83,19 +64,40 @@ make -j
 4. 双阈值二值化：幅值 ≥ 高阈值标为强边缘，介于两阈值之间标为弱边缘候选；
 5. 弱边缘连接：以所有强边缘为起点做 BFS，8 邻域内连通的弱边缘提升为强边缘，最终输出 255/0 的二值边缘图。
 
-## 结果示例
+## 结果对比
 
-| Sobel（Lenna） | Canny（Lenna，50/100） |
+### Sobel 边缘检测
+
+| 原图 | Sobel |
 | --- | --- |
-| ![sobel](docs/images/lenna_sobel.png) | ![canny](docs/images/lenna_canny.png) |
+| ![Lenna 原图](docs/images/lenna_original.jpg) | ![Lenna Sobel](docs/images/lenna_sobel.png) |
+| ![house 原图](docs/images/house_original.jpg) | ![house Sobel](docs/images/house_sobel.png) |
 
-| Canny（house，50/100） | 中值滤波（butterfly，5×5） |
+### Canny 边缘检测：不同双阈值（Lenna）
+
+| 原图 | 50 / 100 | 50 / 150 | 80 / 150 | 80 / 180 |
+| --- | --- | --- | --- | --- |
+| ![Lenna 原图](docs/images/lenna_original.jpg) | ![50/100](docs/images/lenna_canny_50_100.png) | ![50/150](docs/images/lenna_canny_50_150.png) | ![80/150](docs/images/lenna_canny_80_150.png) | ![80/180](docs/images/lenna_canny_80_180.png) |
+
+阈值提高后弱边缘被丢弃，残留的强边缘更少、更干净。
+
+### Canny 边缘检测：其他测试图（50 / 100）
+
+| 原图 | Canny |
 | --- | --- |
-| ![house canny](docs/images/house_canny.png) | ![median](docs/images/butterfly_median.png) |
+| ![house 原图](docs/images/house_original.jpg) | ![house Canny](docs/images/house_canny_50_100.png) |
+| ![rice 原图](docs/images/rice_original.png) | ![rice Canny](docs/images/rice_canny_50_100.png) |
 
-> 示例图从本地 `result/` 目录中挑选；butterfly 一张为便于网页展示缩放到 900×900，其余为原始输出。
+### 中值滤波：不同窗口（butterfly）
+
+| 原图 | 3×3 | 5×5 | 15×15 |
+| --- | --- | --- | --- |
+| ![butterfly 原图](docs/images/butterfly_original.png) | ![3x3](docs/images/butterfly_median_3.png) | ![5x5](docs/images/butterfly_median_5.png) | ![15x15](docs/images/butterfly_median_15.png) |
+
+窗口越大平滑越强，细节（翅脉、触角）随之丢失；含 alpha 的图 alpha 通道不参与滤波。
 
 ## 说明
 
-- 输出图像统一由 `stbi_write_png` 写出，**输出格式恒为 PNG，与文件名的扩展名无关**（例如命名为 `out.jpg` 时内容仍是 PNG）。
+- 输出图像统一由 `stbi_write_png` 写出，**输出格式恒为 PNG，与文件名的扩展名无关**（例如命名为 `out.jpg` 时内容仍是 PNG）。README 里的结果图即按真实内容以 `.png` 命名。
 - stb 两个头文件的实现只在 `image_io.cpp` 中定义一次（`STB_IMAGE_IMPLEMENTATION` / `STB_IMAGE_WRITE_IMPLEMENTATION`），其余文件只包含声明，避免重复符号。
+- 展示图来自本地 `result/`；butterfly 系列为便于网页展示从 2000×2000 缩放到 800×800（保留 alpha 通道），其余为原始输出。

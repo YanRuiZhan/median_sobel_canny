@@ -21,13 +21,15 @@ Matrix to_gray(const Image& raw) {
     Matrix gray(raw.h, std::vector<int>(raw.w, 0));
     for (int y = 0; y < raw.h; ++y) {
         for (int x = 0; x < raw.w; ++x) {
+            // 行内偏移：data 每行有 w*ch 个元素，像素按 ch 个通道交错存放
+            const int offset = x * raw.ch;
             // 只有单通道或灰度加透明度双通道时直接赋值
             if (raw.ch == 1 || raw.ch == 2) {
-                gray[y][x] = raw.data[y][x];
+                gray[y][x] = raw.data[y][offset];
             } else {
-                int r = raw.data[y][x * raw.ch + 0];
-                int g = raw.data[y][x * raw.ch + 1];
-                int b = raw.data[y][x * raw.ch + 2];
+                int r = raw.data[y][offset + 0];
+                int g = raw.data[y][offset + 1];
+                int b = raw.data[y][offset + 2];
                 gray[y][x] = static_cast<int>(0.299 * r+0.587 * g+0.114 * b );
             }
         }

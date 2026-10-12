@@ -4,8 +4,8 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
 #include "includes/image_io.hpp"
-#include <includes/stb_image.h>
-#include <includes/stb_image_write.h>
+#include "includes/stb_image.h"
+#include "includes/stb_image_write.h"
 #include <iostream>
 
 Image read_image(const std::string& path) {

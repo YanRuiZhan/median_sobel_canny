@@ -2,7 +2,7 @@
 
 #include "includes/median_blur.hpp"
 #include "includes/convolution.hpp"
-#include "kernels.hpp"
+#include "includes/kernels.hpp"
 
 #include <algorithm>
 #include <utility>
@@ -123,7 +123,8 @@ Image median_blur(const Image& raw, int len_win) {
             for (int y = 0; y < raw.h; ++y)
                 for (int x = 0; x < raw.w; ++x)
                     img.data[y][x * raw.ch + c] = raw.data[y][x * raw.ch + c];
-            }
+            continue;   // alpha 已拷贝完，跳过下面的拆分/滤波/合回
+        }
 
         // 拆出第 c 通道
         for (int y = 0; y < raw.h; ++y)

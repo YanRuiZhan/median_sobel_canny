@@ -1,8 +1,8 @@
-#include "image_io.hpp"
-#include "median_blur.hpp"
-#include "sobel.hpp"
-#include "canny.hpp"
-#include "kernels.hpp"
+#include "icm/image_io.hpp"
+#include "icm/median_blur.hpp"
+#include "icm/sobel.hpp"
+#include "icm/canny.hpp"
+#include "icm/kernels.hpp"
 #include <iostream>
 #include <string>
 #include <chrono>

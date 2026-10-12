@@ -17,7 +17,7 @@
     5.将low-high阈值中间边线与high部分边线连接（BFS扩散）
  */
 
-#include "kernels.hpp"
+#include "icm/kernels.hpp"
 
 namespace icm {
 

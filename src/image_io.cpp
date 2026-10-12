@@ -3,7 +3,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
-#include "image_io.hpp"
+#include "icm/image_io.hpp"
 #include "stb/stb_image.h"
 #include "stb/stb_image_write.h"
 #include <iostream>

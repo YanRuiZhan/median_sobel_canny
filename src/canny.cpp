@@ -8,9 +8,9 @@
 //4. 双阈值处理二值化（高阈值=强边缘，低阈值=弱边缘候选）
 //5. 弱边缘连接：仅当弱边缘与强边缘相连时才保留（BFS 扩散）
 
-#include "canny.hpp"
-#include "convolution.hpp"
-#include "kernels.hpp"
+#include "icm/canny.hpp"
+#include "icm/convolution.hpp"
+#include "icm/kernels.hpp"
 
 #include <cmath>
 #include <vector>

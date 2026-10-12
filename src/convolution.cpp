@@ -1,8 +1,8 @@
 //定义卷积运算
 
 //头文件定义 Matrix = std::vector<std::vector<int>>
-# include "convolution.hpp"
-# include "kernels.hpp"
+# include "icm/convolution.hpp"
+# include "icm/kernels.hpp"
 # include <cstddef>
 # include <iostream>
 # include <vector>

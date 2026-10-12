@@ -34,13 +34,14 @@ mkdir -p build && cd build && cmake .. && make -j
 ```
 assignment_ws/
 ├── CMakeLists.txt
-├── include/                  # 本项目头文件（扁平放置，源文件里写 #include "canny.hpp"）
-│   ├── canny.hpp
-│   ├── convolution.hpp
-│   ├── image_io.hpp
-│   ├── kernels.hpp
-│   ├── median_blur.hpp
-│   └── sobel.hpp
+├── include/
+│   └── icm/                  # 本项目头文件，源文件里写 #include "icm/canny.hpp"
+│       ├── canny.hpp
+│       ├── convolution.hpp
+│       ├── image_io.hpp
+│       ├── kernels.hpp
+│       ├── median_blur.hpp
+│       └── sobel.hpp
 ├── src/                      # 只放 .cpp 实现
 │   ├── main.cpp              # 命令行入口，分发三种处理方式并计时
 │   ├── kernels.cpp           # Sobel / 高斯卷积核、默认参数、clamp255
@@ -57,6 +58,8 @@ assignment_ws/
 ```
 
 本项目所有对外类型和函数都在 `namespace icm` 下（`Image`、`Matrix`、`conv`、`clamp255` 等名字都很通用，靠命名空间而不是目录层级来避免与其他库撞符号）。`main.cpp` 作为唯一入口用 `using namespace icm;`，库代码里一律显式限定。
+
+头文件放在 `include/icm/` 子目录、`include` 仍然作为 `-I` 目录，所以头文件互相 include 时写同目录的 `#include "kernels.hpp"` 即可，`src/` 里则写成 `#include "icm/kernels.hpp"`。这一层前缀解决的是**头文件路径**撞名（和 stb 的 `#include "stb/stb_image.h"` 同理），与命名空间各管一件事，互不替代。
 
 ## 算法实现
 

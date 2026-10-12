@@ -1,8 +1,8 @@
 // Sobel 锐化滤波：灰度化 -> 高斯平滑 -> 双方向梯度 -> 梯度幅值
 
-#include "includes/sobel.hpp"
-#include "includes/convolution.hpp"
-#include "includes/kernels.hpp"
+#include "sobel.hpp"
+#include "convolution.hpp"
+#include "kernels.hpp"
 
 #include <cmath>
 #include <vector>

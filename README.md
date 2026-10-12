@@ -34,15 +34,25 @@ mkdir -p build && cd build && cmake .. && make -j
 ```
 assignment_ws/
 ├── CMakeLists.txt
-├── src/
+├── include/                  # 本项目头文件（扁平放置，源文件里写 #include "canny.hpp"）
+│   ├── canny.hpp
+│   ├── convolution.hpp
+│   ├── image_io.hpp
+│   ├── kernels.hpp
+│   ├── median_blur.hpp
+│   └── sobel.hpp
+├── src/                      # 只放 .cpp 实现
 │   ├── main.cpp              # 命令行入口，分发三种处理方式并计时
 │   ├── kernels.cpp           # Sobel / 高斯卷积核、默认参数、clamp255
 │   ├── convolution.cpp       # 复制边界填充 padding + 卷积
 │   ├── image_io.cpp          # stb_image / stb_image_write 封装（本项目唯一定义实现处）
 │   ├── median_blur.cpp       # 中值滤波（滑动直方图）
 │   ├── sobel.cpp             # Sobel 边缘检测
-│   ├── canny.cpp             # Canny 边缘检测
-│   └── includes/             # 各模块头文件 + stb_image.h / stb_image_write.h
+│   └── canny.cpp             # Canny 边缘检测
+├── third_party/              # 第三方库，只读不改
+│   └── stb/
+│       ├── stb_image.h
+│       └── stb_image_write.h
 └── docs/images/              # README 用的原图与结果对比图
 ```
 

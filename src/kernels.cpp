@@ -17,7 +17,7 @@
     5.将low-high阈值中间边线与high部分边线连接（BFS扩散）
  */
 
-#include "includes/kernels.hpp"
+#include "kernels.hpp"
 
 //初始化sobel算子x、y方向卷积核,sobel算子固定为3*3模板
 Matrix sobx = {{-1, 0, 1},{-2, 0, 2},{-1, 0, 1}};

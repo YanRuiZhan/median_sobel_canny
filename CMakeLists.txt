@@ -35,9 +35,13 @@ add_executable(final
 
 # target 专属设置
 target_include_directories(final PRIVATE
-    ${PROJECT_SOURCE_DIR}/src
-    ${PROJECT_SOURCE_DIR}/src/includes
+    ${PROJECT_SOURCE_DIR}/include       # 本项目头文件
     ${OpenCV_INCLUDE_DIRS}
+)
+
+# 第三方头文件标记为 SYSTEM，避免其内部警告污染本项目编译输出
+target_include_directories(final SYSTEM PRIVATE
+    ${PROJECT_SOURCE_DIR}/third_party   # 形如 #include "stb/stb_image.h"
 )
 
 target_link_libraries(final PRIVATE ${OpenCV_LIBS})

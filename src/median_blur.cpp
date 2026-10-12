@@ -1,8 +1,8 @@
 //中值平滑滤波
 
-#include "includes/median_blur.hpp"
-#include "includes/convolution.hpp"
-#include "includes/kernels.hpp"
+#include "median_blur.hpp"
+#include "convolution.hpp"
+#include "kernels.hpp"
 
 #include <algorithm>
 #include <utility>

@@ -26,8 +26,8 @@ mkdir -p build && cd build && cmake .. && make -j
 
 程序会打印读入图像的尺寸、通道数和处理耗时；参数不合法（偶数窗口、Canny 只给一个阈值）会报错退出。
 
-> CMakeLists 里保留了 `find_package(OpenCV 4 REQUIRED)`，配置阶段需要能找到 OpenCV 4；
-> 当前实现没有直接调用 OpenCV 的函数，不需要的话可以把那几行连同 `target_link_libraries` 一起删掉。
+> 本项目不依赖 OpenCV：CMakeLists 里的 `find_package(OpenCV 4)`、`target_link_libraries` 等行已注释掉，
+> 配置阶段不需要安装 OpenCV。以后若要用，取消注释即可。
 
 ## 目录结构
 
@@ -55,6 +55,8 @@ assignment_ws/
 │       └── stb_image_write.h
 └── docs/images/              # README 用的原图与结果对比图
 ```
+
+本项目所有对外类型和函数都在 `namespace icm` 下（`Image`、`Matrix`、`conv`、`clamp255` 等名字都很通用，靠命名空间而不是目录层级来避免与其他库撞符号）。`main.cpp` 作为唯一入口用 `using namespace icm;`，库代码里一律显式限定。
 
 ## 算法实现
 

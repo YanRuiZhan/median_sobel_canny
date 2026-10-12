@@ -3,6 +3,8 @@
 
 #include <vector>
 
+namespace icm {
+
 //卷积核类型别名，等价于 std::vector<std::vector<int>>
 using Matrix = std::vector<std::vector<int>>;
 
@@ -21,5 +23,7 @@ extern const int median_default_window;
 
 // 把数值钳位到 [0, 255]，供像素写入、梯度截断等场景复用
 int clamp255(int v);
+
+}  // namespace icm
 
 #endif

@@ -19,6 +19,8 @@
 
 #include "kernels.hpp"
 
+namespace icm {
+
 //初始化sobel算子x、y方向卷积核,sobel算子固定为3*3模板
 Matrix sobx = {{-1, 0, 1},{-2, 0, 2},{-1, 0, 1}};
 Matrix soby = {{-1,-2,-1},{ 0, 0, 0},{ 1, 2, 1}};
@@ -35,3 +37,5 @@ const int median_default_window = 3;
 int clamp255(int v) {
     return v < 0 ? 0 : (v > 255 ? 255 : v);
 }
+
+}  // namespace icm

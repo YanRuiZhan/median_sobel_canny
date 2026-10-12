@@ -7,6 +7,8 @@
 #include <cmath>
 #include <vector>
 
+namespace icm {
+
 // 对单通道图像计算 Sobel 梯度幅值
 Matrix sobel_sharpen_channel(Matrix& gray) {
     const int h = static_cast<int>(gray.size());
@@ -68,3 +70,5 @@ Image sobel_sharpen(const Image& raw) {
     out.data = sobel_sharpen_channel(gray);
     return out;
 }
+
+}  // namespace icm

@@ -16,6 +16,8 @@
 #include <vector>
 #include <queue>
 
+namespace icm {
+
 // 逐通道转灰度系数（BT.601）
 Matrix to_gray(const Image& raw) {
     Matrix gray(raw.h, std::vector<int>(raw.w, 0));
@@ -149,3 +151,5 @@ Image canny_edge(const Image& raw,const int low_threshold,const int high_thresho
 
     return out;
 }
+
+}  // namespace icm

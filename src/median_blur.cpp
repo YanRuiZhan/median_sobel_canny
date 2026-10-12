@@ -8,6 +8,8 @@
 #include <utility>
 #include <vector>
 
+namespace icm {
+
 // 插入排序法找中间值，排序后直接返回中位数
 /*时间复杂度 O(n^2)，n 为窗口内元素个数
   空间复杂度 O(1)，原地排序，无需额外分配
@@ -139,3 +141,5 @@ Image median_blur(const Image& raw, int len_win) {
     }
     return img;
 }
+
+}  // namespace icm

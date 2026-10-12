@@ -7,6 +7,9 @@
 #include <string>
 #include <chrono>
 
+// 唯一的应用入口，直接展开本项目的命名空间，省去逐个写 icm:: 前缀
+using namespace icm;
+
 // 计时辅助：记录起始时刻，单位毫秒
 using Clock = std::chrono::steady_clock;
 static Clock::time_point tick() { return Clock::now(); }

@@ -1,13 +1,13 @@
 //定义卷积运算
 
 //头文件定义 Matrix = std::vector<std::vector<int>>
+# include "convolution.hpp"
 # include "kernels.hpp"
 # include <cstddef>
 # include <iostream>
 # include <vector>
 
-Matrix padding(Matrix& image, int kernel_size);   // 声明
-int calculate_conv(Matrix& image,Matrix& filter,int i,int j);
+namespace icm {
 
 Matrix conv(Matrix& image,Matrix& filter){
 /* 实现基本卷积操作：*/
@@ -68,3 +68,5 @@ int calculate_conv(Matrix& image,Matrix& filter,int i,int j){
     }
     return sum;
 }
+
+}  // namespace icm

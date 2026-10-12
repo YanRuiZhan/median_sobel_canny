@@ -4,6 +4,8 @@
 #include "kernels.hpp"
 #include <string>
 
+namespace icm {
+
 // 图片结构体：data 存像素，w/h/ch 保存元信息
 // Matrix 本身是"行×列"的裸二维数组
 // 无法区分灰度和彩色，把尺寸带出来才能正确存取
@@ -14,5 +16,7 @@ struct Image {
 
 Image read_image(const std::string& img_path);
 bool save_image(const std::string& img_path, const Image& img);
+
+}  // namespace icm
 
 #endif

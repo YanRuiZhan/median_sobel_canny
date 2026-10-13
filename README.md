@@ -8,7 +8,22 @@
 
 ```bash
 # 构建（需要 CMake ≥ 3.16 和 C++17 编译器）
-mkdir -p build && cd build && cmake .. && make -j
+mkdir -p build && cd build && cmake .. && cmake --build . -j
+```
+
+安装 Qt 5 Widgets 和 Concurrent 开发包时，默认也会构建图形界面：
+
+```bash
+./build/bin/icm_gui
+```
+
+界面支持打开本地图片、选择中值滤波/Sobel/Canny、调整参数、预览结果并另存为 PNG。处理在后台执行；输入格式受项目内置 stb 解码器支持范围限制。
+
+如果只需构建命令行程序，或构建环境没有 Qt，可关闭界面目标：
+
+```bash
+cmake -S . -B build -DICM_BUILD_GUI=OFF
+cmake --build build -j
 ```
 
 ```bash

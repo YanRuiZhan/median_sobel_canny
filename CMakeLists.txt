@@ -22,9 +22,8 @@ message(STATUS "构建类型: ${CMAKE_BUILD_TYPE}")
 #message(STATUS "OpenCV 版本: ${OpenCV_VERSION}")
 #message(STATUS "OpenCV 头文件: ${OpenCV_INCLUDE_DIRS}")
 
-# 添加可执行文件
-add_executable(final
-    src/main.cpp
+# 图像处理实现由命令行程序和 Qt 界面共享。
+add_library(icm
     src/convolution.cpp
     src/kernels.cpp
     src/image_io.cpp
@@ -33,25 +32,41 @@ add_executable(final
     src/canny.cpp
 )
 
-# target 专属设置
-target_include_directories(final PRIVATE
-    ${PROJECT_SOURCE_DIR}/include       # 本项目头文件
-    #${OpenCV_INCLUDE_DIRS}
+target_include_directories(icm PUBLIC
+    ${PROJECT_SOURCE_DIR}/include
 )
 
-# 第三方头文件标记为 SYSTEM，避免其内部警告污染本项目编译输出
-target_include_directories(final SYSTEM PRIVATE
-    ${PROJECT_SOURCE_DIR}/third_party   # 形如 #include "stb/stb_image.h"
+target_include_directories(icm SYSTEM PRIVATE
+    ${PROJECT_SOURCE_DIR}/third_party
 )
 
-#target_link_libraries(final PRIVATE ${OpenCV_LIBS})
-
-
-target_compile_options(final PRIVATE
+target_compile_options(icm PRIVATE
     -Wall
     -Wextra
 )
 
-set_target_properties(final PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin
-)
+# 保留现有命令行程序。
+add_executable(final src/main.cpp)
+target_link_libraries(final PRIVATE icm)
+
+# Qt 界面作为独立可选目标，命令行构建无需安装 Qt。
+option(ICM_BUILD_GUI "Build the Qt Widgets interface when Qt is available" ON)
+if(ICM_BUILD_GUI)
+    find_package(Qt5 COMPONENTS Widgets Concurrent QUIET)
+endif()
+if(ICM_BUILD_GUI AND Qt5Widgets_FOUND AND Qt5Concurrent_FOUND)
+    set(CMAKE_AUTOMOC ON)
+    add_executable(icm_gui src/gui_main.cpp src/main_window.cpp src/main_window.hpp)
+    target_link_libraries(icm_gui PRIVATE icm Qt5::Widgets Qt5::Concurrent)
+    set_target_properties(icm_gui PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin
+    )
+else()
+    message(STATUS "Qt5 Widgets/Concurrent not found or GUI disabled; skipping icm_gui target")
+endif()
+
+foreach(target icm final)
+    set_target_properties(${target} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin
+    )
+endforeach()

@@ -59,6 +59,7 @@ Thumbs.db
 .cache/
 clangd/
 index/
+docs/
 result/
 testdata/
 out/

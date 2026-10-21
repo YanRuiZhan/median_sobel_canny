@@ -65,7 +65,7 @@ Image canny_edge(const Image& raw,const int low_threshold,const int high_thresho
             double dy = gy[y][x];
             mag[y][x] = std::sqrt(dx * dx + dy * dy);
             // 方向归一到 [0, 180) 度
-            double angle = std::atan2(dy, dx) * 180.0 / M_PI;
+            double angle = std::atan2(dx, dy) * 180.0 / M_PI;
             if (angle < 0) angle += 180.0;
             dir[y][x] = angle;
         }

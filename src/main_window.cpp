@@ -5,6 +5,7 @@
 #include "icm/sobel.hpp"
 
 #include <QComboBox>
+#include <QDoubleSpinBox>
 #include <QElapsedTimer>
 #include <QGridLayout>
 #include <QFileDialog>
@@ -90,6 +91,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     method_->addItem(QStringLiteral("中值滤波"), QStringLiteral("median"));
     method_->addItem(QStringLiteral("Sobel 边缘"), QStringLiteral("sobel"));
     method_->addItem(QStringLiteral("Canny 边缘"), QStringLiteral("canny"));
+    method_->addItem(QStringLiteral("改进 Canny 边缘"), QStringLiteral("canny_improved"));
     toolbar->addWidget(openButton);
     toolbar->addWidget(method_);
 
@@ -118,6 +120,19 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     highThreshold_->setValue(110);
     cannyLayout->addWidget(highThreshold_);
     toolbar->addWidget(cannyControls_);
+
+    bilateralControls_ = new QWidget(central);
+    auto* bilateralLayout = new QHBoxLayout(bilateralControls_);
+    bilateralLayout->setContentsMargins(0, 0, 0, 0);
+    bilateralLayout->addWidget(new QLabel(QStringLiteral("灰度尺度 σ_color"), bilateralControls_));
+    sigmaColor_ = new QDoubleSpinBox(bilateralControls_);
+    sigmaColor_->setDecimals(1);
+    sigmaColor_->setRange(0.1, 255.0);
+    sigmaColor_->setSingleStep(5.0);
+    sigmaColor_->setValue(45.0);
+    sigmaColor_->setToolTip(QStringLiteral("值越大，平滑越强，但可能损失弱边缘。"));
+    bilateralLayout->addWidget(sigmaColor_);
+    toolbar->addWidget(bilateralControls_);
     toolbar->addStretch();
     toolbar->addWidget(processButton_);
     toolbar->addWidget(saveButton_);
@@ -206,11 +221,12 @@ void MainWindow::runProcessing() {
     const int window = medianWindow_->value();
     const int low = lowThreshold_->value();
     const int high = highThreshold_->value();
+    const double sigmaColor = sigmaColor_->value();
     if (method == QStringLiteral("median") && window % 2 == 0) {
         QMessageBox::warning(this, QStringLiteral("参数无效"), QStringLiteral("中值滤波窗口大小必须为奇数。"));
         return;
     }
-    if (method == QStringLiteral("canny") && low > high) {
+    if ((method == QStringLiteral("canny") || method == QStringLiteral("canny_improved")) && low > high) {
         QMessageBox::warning(this, QStringLiteral("参数无效"), QStringLiteral("低阈值不能大于高阈值。"));
         return;
     }
@@ -220,7 +236,7 @@ void MainWindow::runProcessing() {
     saveButton_->setEnabled(false);
     status_->setText(QStringLiteral("正在处理…"));
     elapsed_->setText(QStringLiteral("处理耗时：计算中…"));
-    watcher_.setFuture(QtConcurrent::run([source, method, window, low, high]() {
+    watcher_.setFuture(QtConcurrent::run([source, method, window, low, high, sigmaColor]() {
         ProcessingResult result;
         QElapsedTimer timer;
         timer.start();
@@ -228,6 +244,8 @@ void MainWindow::runProcessing() {
             result.image = icm::median_blur(source, window);
         else if (method == QStringLiteral("sobel"))
             result.image = icm::sobel_sharpen(source);
+        else if (method == QStringLiteral("canny_improved"))
+            result.image = icm::canny_edge_improved(source, low, high, 3, 1.5, sigmaColor);
         else
             result.image = icm::canny_edge(source, low, high);
         result.elapsedMs = timer.nsecsElapsed() / 1000000.0;
@@ -238,7 +256,9 @@ void MainWindow::runProcessing() {
 void MainWindow::updateControls() {
     const QString method = method_->currentData().toString();
     medianControls_->setVisible(method == QStringLiteral("median"));
-    cannyControls_->setVisible(method == QStringLiteral("canny"));
+    bilateralControls_->setVisible(method == QStringLiteral("canny_improved"));
+    cannyControls_->setVisible(method == QStringLiteral("canny") ||
+                               method == QStringLiteral("canny_improved"));
 }
 
 void MainWindow::processingFinished() {

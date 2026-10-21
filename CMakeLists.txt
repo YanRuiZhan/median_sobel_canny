@@ -30,6 +30,7 @@ add_library(icm
     src/median_blur.cpp
     src/sobel.cpp
     src/canny.cpp
+    src/canny_improved.cpp
 )
 
 target_include_directories(icm PUBLIC

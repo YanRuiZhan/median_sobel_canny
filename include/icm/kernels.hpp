@@ -10,6 +10,8 @@ using Matrix = std::vector<std::vector<int>>;
 
 extern Matrix sobx;
 extern Matrix soby;
+extern Matrix sob45;
+extern Matrix sob135;
 extern Matrix gauss_kernel;   // 3x3 高斯平滑核，元素和为 gauss_kernel_sum
 
 // 高斯核元素之和，用于卷积后归一化（除以它）

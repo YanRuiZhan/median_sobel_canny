@@ -90,6 +90,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     method_ = new QComboBox(central);
     method_->addItem(QStringLiteral("中值滤波"), QStringLiteral("median"));
     method_->addItem(QStringLiteral("Sobel 边缘"), QStringLiteral("sobel"));
+        method_->addItem(QStringLiteral("改进 Sobel 边缘"), QStringLiteral("sobel_improved"));
     method_->addItem(QStringLiteral("Canny 边缘"), QStringLiteral("canny"));
     method_->addItem(QStringLiteral("改进 Canny 边缘"), QStringLiteral("canny_improved"));
     toolbar->addWidget(openButton);
@@ -244,6 +245,8 @@ void MainWindow::runProcessing() {
             result.image = icm::median_blur(source, window);
         else if (method == QStringLiteral("sobel"))
             result.image = icm::sobel_sharpen(source);
+        else if (method == QStringLiteral("sobel_improved"))
+            result.image = icm::sobel_sharpen_improved(source);
         else if (method == QStringLiteral("canny_improved"))
             result.image = icm::canny_edge_improved(source, low, high, 3, 1.5, sigmaColor);
         else

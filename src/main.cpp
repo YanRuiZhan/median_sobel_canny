@@ -29,6 +29,7 @@ int main(int argc, char** argv) {
         std::cerr << "用法: " << argv[0] << " <输入图> <输出图> <处理方式> [参数]\n";
         std::cerr << "  处理方式: median   - 中值滤波 [窗口大小n]\n";
         std::cerr << "            sobel   - Sobel 边缘检测，无需参数\n";
+                std::cerr << "            sobel_improved - 四方向 Sobel 边缘检测，无需参数\n";
         std::cerr << "            canny   - canny算子提取图像边缘 [低阈值 高阈值]\n";
         return 1;
     }
@@ -71,10 +72,13 @@ int main(int argc, char** argv) {
     }
 
     //2.Sobel 边缘检测
-    else if (method == "sobel") {
+    else if (method == "sobel" || method == "sobel_improved") {
         auto t0 = tick();
-        Image out = sobel_sharpen(img);
-        std::cout << "Sobel 边缘检测完成  用时 " << tock_ms(t0) << " ms\n";
+        Image out = method == "sobel_improved"
+            ? sobel_sharpen_improved(img)
+            : sobel_sharpen(img);
+        std::cout << (method == "sobel_improved" ? "改进 Sobel 边缘检测完成" : "Sobel 边缘检测完成")
+                  << "  用时 " << tock_ms(t0) << " ms\n";
 
         if (!save_image(argv[2], out)) {
             std::cerr << "保存失败\n";

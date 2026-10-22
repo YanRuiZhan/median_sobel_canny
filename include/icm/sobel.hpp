@@ -9,6 +9,9 @@ namespace icm {
 // 输出单通道灰度图，不叠加原图，忽略 alpha
 Image sobel_sharpen(const Image& src);
 
+// 改进版 Sobel：在水平、垂直、45°、135°四个方向计算梯度幅值。
+Image sobel_sharpen_improved(const Image& src);
+
 }  // namespace icm
 
 #endif

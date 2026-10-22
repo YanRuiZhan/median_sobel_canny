@@ -71,4 +71,5 @@ Image sobel_sharpen(const Image& raw) {
     return out;
 }
 
+
 }  // namespace icm

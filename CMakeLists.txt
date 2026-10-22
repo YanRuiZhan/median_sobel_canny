@@ -29,6 +29,7 @@ add_library(icm
     src/image_io.cpp
     src/median_blur.cpp
     src/sobel.cpp
+    src/sobel_improved.cpp
     src/canny.cpp
     src/canny_improved.cpp
 )

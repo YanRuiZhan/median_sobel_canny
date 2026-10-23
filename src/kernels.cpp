@@ -39,7 +39,10 @@ Matrix sob135 = {{0, -1, -2},
                  {2, 1, 0}};
 
 // 3x3 高斯平滑核（和为 16），降低噪声引起的伪边缘，sobel 算子与 canny 算子共用
-Matrix gauss_kernel = {{1, 2, 1}, {2, 4, 2}, {1, 2, 1}};
+Matrix gauss_kernel = {{1, 2, 1},
+                       {2, 4, 2},
+                       {1, 2, 1}};
+
 const int gauss_kernel_sum = 16;
 
 

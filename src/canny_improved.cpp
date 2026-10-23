@@ -2,7 +2,7 @@
 #include "icm/convolution.hpp"
 #include "icm/kernels.hpp"
 
-#include <algorithm>
+
 #include <cmath>
 #include <queue>
 #include <stdexcept>
@@ -14,41 +14,15 @@ namespace icm {
     // 与原 Canny 共用 BT.601 灰度转换。
     Matrix to_gray(const Image& raw);
 
-    // 双边滤波
-    Matrix bilateral_blur(const Matrix& gray, int window, double sigma_space, double sigma_color) {
-        const int h = static_cast<int>(gray.size()), w = static_cast<int>(gray[0].size());
-        const int radius = window / 2;
-        std::vector<std::vector<double>> spatial(window, std::vector<double>(window));
-        for (int dy = -radius; dy <= radius; ++dy)
-            for (int dx = -radius; dx <= radius; ++dx)
-                spatial[dy + radius][dx + radius] =
-                    std::exp(-0.5 * (double(dx) * dx + double(dy) * dy) / sigma_space / sigma_space);
 
-        Matrix blurred(h, std::vector<int>(w, 0));
-        // 复制边界；空间权重与灰度相似度权重共同决定平滑程度。
-        for (int y = 0; y < h; ++y) {
-            for (int x = 0; x < w; ++x) {
-                double sum = 0.0, weights = 0.0;
-                for (int dy = -radius; dy <= radius; ++dy) {
-                    for (int dx = -radius; dx <= radius; ++dx) {
-                        int value = gray[std::clamp(y + dy, 0, h - 1)][std::clamp(x + dx, 0, w - 1)];
-                        double diff = double(value) - gray[y][x];
-                        double weight = spatial[dy + radius][dx + radius] *
-                            std::exp(-0.5 * (diff / sigma_color) * (diff / sigma_color));
-                        sum += weight * value;
-                        weights += weight;
-                    }
-                }
-                blurred[y][x] = static_cast<int>(std::lround(sum / weights));
-            }
-        }
-        return blurred;
-    }
-
-    Image canny_edge_improved(const Image& src, int low_threshold, int high_threshold,
-                              int window, double sigma_space, double sigma_color) {
+    Image canny_edge_improved(const Image& src, int low_threshold, int high_threshold) {
         const int h = src.h, w = src.w;
-        Matrix blurred = bilateral_blur(to_gray(src), window, sigma_space, sigma_color);
+        Matrix gray = to_gray(src);
+        Matrix blurred_raw = conv(gray, gauss_kernel);
+        Matrix blurred(h, std::vector<int>(w, 0));
+        for (int y = 0; y < h; ++y)
+            for (int x = 0; x < w; ++x)
+                blurred[y][x] = blurred_raw[y][x] / gauss_kernel_sum;
 
 
     Matrix gx = conv(blurred, sobx);

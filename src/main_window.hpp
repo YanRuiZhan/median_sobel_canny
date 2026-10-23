@@ -10,7 +10,7 @@
 class QLabel;
 class QComboBox;
 class QSpinBox;
-class QDoubleSpinBox;
+
 class QPushButton;
 class QWidget;
 
@@ -40,8 +40,7 @@ private:
     QComboBox* method_ = nullptr;
     QWidget* medianControls_ = nullptr;
     QWidget* cannyControls_ = nullptr;
-    QWidget* bilateralControls_ = nullptr;
-    QDoubleSpinBox* sigmaColor_ = nullptr;
+
     QSpinBox* medianWindow_ = nullptr;
     QSpinBox* lowThreshold_ = nullptr;
     QSpinBox* highThreshold_ = nullptr;

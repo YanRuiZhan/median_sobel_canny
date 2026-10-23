@@ -122,18 +122,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     cannyLayout->addWidget(highThreshold_);
     toolbar->addWidget(cannyControls_);
 
-    bilateralControls_ = new QWidget(central);
-    auto* bilateralLayout = new QHBoxLayout(bilateralControls_);
-    bilateralLayout->setContentsMargins(0, 0, 0, 0);
-    bilateralLayout->addWidget(new QLabel(QStringLiteral("灰度尺度 σ_color"), bilateralControls_));
-    sigmaColor_ = new QDoubleSpinBox(bilateralControls_);
-    sigmaColor_->setDecimals(1);
-    sigmaColor_->setRange(0.1, 255.0);
-    sigmaColor_->setSingleStep(5.0);
-    sigmaColor_->setValue(45.0);
-    sigmaColor_->setToolTip(QStringLiteral("值越大，平滑越强，但可能损失弱边缘。"));
-    bilateralLayout->addWidget(sigmaColor_);
-    toolbar->addWidget(bilateralControls_);
+
     toolbar->addStretch();
     toolbar->addWidget(processButton_);
     toolbar->addWidget(saveButton_);
@@ -222,7 +211,7 @@ void MainWindow::runProcessing() {
     const int window = medianWindow_->value();
     const int low = lowThreshold_->value();
     const int high = highThreshold_->value();
-    const double sigmaColor = sigmaColor_->value();
+
     if (method == QStringLiteral("median") && window % 2 == 0) {
         QMessageBox::warning(this, QStringLiteral("参数无效"), QStringLiteral("中值滤波窗口大小必须为奇数。"));
         return;
@@ -237,7 +226,7 @@ void MainWindow::runProcessing() {
     saveButton_->setEnabled(false);
     status_->setText(QStringLiteral("正在处理…"));
     elapsed_->setText(QStringLiteral("处理耗时：计算中…"));
-    watcher_.setFuture(QtConcurrent::run([source, method, window, low, high, sigmaColor]() {
+    watcher_.setFuture(QtConcurrent::run([source, method, window, low, high]() {
         ProcessingResult result;
         QElapsedTimer timer;
         timer.start();
@@ -248,7 +237,7 @@ void MainWindow::runProcessing() {
         else if (method == QStringLiteral("sobel_improved"))
             result.image = icm::sobel_sharpen_improved(source);
         else if (method == QStringLiteral("canny_improved"))
-            result.image = icm::canny_edge_improved(source, low, high, 3, 1.5, sigmaColor);
+            result.image = icm::canny_edge_improved(source, low, high);
         else
             result.image = icm::canny_edge(source, low, high);
         result.elapsedMs = timer.nsecsElapsed() / 1000000.0;
@@ -259,7 +248,7 @@ void MainWindow::runProcessing() {
 void MainWindow::updateControls() {
     const QString method = method_->currentData().toString();
     medianControls_->setVisible(method == QStringLiteral("median"));
-    bilateralControls_->setVisible(method == QStringLiteral("canny_improved"));
+
     cannyControls_->setVisible(method == QStringLiteral("canny") ||
                                method == QStringLiteral("canny_improved"));
 }

@@ -1,4 +1,4 @@
-# assignment_ws
+# median_sobel_canny
 
 工业相机测量课程作业1： C++ 实现 **中值滤波**、**Sobel 边缘检测**、**Canny 边缘检测** 三个算子。
 本次课程作业在本人ubuntu22.04电脑上完成,使用C++17编译器编译构建，需要 CMake ≥ 3.16
@@ -15,7 +15,7 @@ cd .. && build/bin/icm_gui
 ## 目录结构
 
 ```
-assignment_ws/
+median_sobel_canny/
 ├── CMakeLists.txt
 ├── include/
 │   └── icm/                  # 自己实现的头文件(icm是课程简称) 
